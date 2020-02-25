@@ -4,6 +4,8 @@
 
 #include "file_writer.h"
 
+
+
 std::string scalar_to_string(const char* name,
 			     std::vector<SPH_particle> *particle_list,
 			     double (*func)(SPH_particle)) {
@@ -101,9 +103,13 @@ double get_pressure(SPH_particle p) {
   return p.P;
 }
 
+void filename_padLeft(string& file_num, const size_t size, const char padzero)
+{
+    if (size > file_num.size())
+        file_num.insert(0, size - file_num.size(), padzero);
+}
 
-int write_file(const char *filename,
-	       std::vector<SPH_particle> *particle_list) {
+int write_file(int& iter,std::vector<SPH_particle> *particle_list) {
 
   /*
     
@@ -113,7 +119,14 @@ int write_file(const char *filename,
     @param[in] particle_list Particle list to output 
 
    */
-  
+    string file_num;
+    string filename;
+
+    file_num = to_string(iter);
+    filename_padLeft(file_num);
+    filename = "data_" + file_num + ".vtp";
+
+
   std::fstream fs(filename, std::fstream::out);
   
   fs << "<VTKFile type=\"PolyData\">\n";
