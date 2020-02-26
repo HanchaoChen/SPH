@@ -3,6 +3,7 @@
 
 int main() {
 
+    int test_num = 111111;
   SPH_particle particle;
   std::vector<SPH_particle> particle_list;
 
@@ -18,7 +19,7 @@ int main() {
 
   if (particle_list.size() != 10) return 1;
 
-  return write_file("tests/test_file_writer.vtp", &particle_list);
+  return write_file(test_num, &particle_list);
 
 }
 
