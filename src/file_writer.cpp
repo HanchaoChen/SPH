@@ -126,10 +126,10 @@ int write_file(int& iter,std::vector<SPH_particle> *particle_list, bool test) {
     if (!test)
     {
         filename_padLeft(file_num);
-        filename = "data_" + file_num + ".vtp";
+        filename = "data/data_" + file_num + ".vtp";
     }
     else
-        filename = "test_" + file_num + ".vtp";
+        filename = "tests/test_" + file_num + ".vtp";
 
   std::fstream fs(filename, std::fstream::out);
   
