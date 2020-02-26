@@ -1,8 +1,14 @@
 import vtk
 
+# def test_velocity():
+#     reader = vtk.vtkXMLPolyDataReader()
+#     reader.SetFileName('tests/test_file_writer.vtp')
+#     reader.Updata()
+
+
 def test_file_writer_output():
     reader = vtk.vtkXMLPolyDataReader()
-    reader.SetFileName('tests/test_file_writer.vtp')
+    reader.SetFileName('test_1.vtp')
     reader.Update()
 
     pdata = reader.GetOutput()
