@@ -121,11 +121,10 @@ int write_file(int& iter,std::vector<SPH_particle> *particle_list, bool test) {
    */
     string file_num;
     string filename;
-
+    file_num = to_string(iter);
     
     if (!test)
     {
-        file_num = to_string(iter);
         filename_padLeft(file_num);
         filename = "data_" + file_num + ".vtp";
     }
