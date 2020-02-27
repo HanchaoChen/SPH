@@ -5,6 +5,8 @@
 
 SPH_main* SPH_particle::main_data;
 
+
+
 void SPH_particle::init_particle()
 {
 	rho = rho_0;
@@ -54,6 +56,7 @@ void SPH_main::set_values(void)
 	m = rho_0 * dx * dx; //global constant varibles
 }
 
+
 void SPH_main::initialise_grid(void)
 {
 	
@@ -94,6 +97,38 @@ void SPH_main::place_points(double* min, double* max) //the initial allocation (
 	}
 }
 
+void SPH_main::fill_domain()
+{
+	int thick = int(2 * h / dx);
+
+	double min_bottom[2] = { -thick * dx, -thick * dx };
+	double max_bottom[2] = { 20.0 + thick * dx, -dx };
+
+	double min_left[2] = { -thick * dx, 0.0 };
+	double max_left[2] = { -dx, 10.0 };
+
+	double min_right[2] = { 20.0 + dx, 0.0 };
+	double max_right[2] = { 20.0 + thick * h, 10.0 };
+
+	double min_top[2] = { -thick * dx, 10.0 + dx };
+	double max_top[2] = { 20.0 + thick * dx, 10.0 + thick * dx };
+
+	// set up fluid
+	double min_x1[2] = { 0.0, 0.0 };
+	double max_x1[2] = { 20.0, 2.0 };
+
+	double min_x2[2] = { 0.0, 2.0 + dx };
+	double max_x2[2] = { 3.0, 5.0 };
+
+
+	place_points(min_bottom, max_bottom);                //places initial points - will need to be modified to include boundary points and the specifics of where the fluid is in the domain
+	place_points(min_left, max_left);
+	place_points(min_right, max_right);
+	place_points(min_top, max_top);
+
+	place_points(min_x1, max_x1);
+	place_points(min_x2, max_x2);
+}
 
 void SPH_main::allocate_to_grid(void)				//needs to be called each time that all the particles have their positions updated
 {
@@ -106,6 +141,27 @@ void SPH_main::allocate_to_grid(void)				//needs to be called each time that all
 		particle_list[cnt].set_particle_deri();
 		particle_list[cnt].calc_index();
 		search_grid[particle_list[cnt].list_num[0]][particle_list[cnt].list_num[1]].push_back(&particle_list[cnt]);	
+	}
+}
+
+// to check if two particles toppled 
+void SPH_main::check_if_topped(SPH_particle* part)
+{
+	SPH_particle* other_part;
+	size_t size = search_grid[part->list_num[0]][part->list_num[1]].size();
+
+	for (size_t cnt = 0; cnt < size; cnt++)
+	{
+		other_part = search_grid[part->list_num[0]][part->list_num[1]][cnt];
+		if (other_part != part)
+		{
+			if (other_part->x[0] == part->x[0])
+			{
+				if (other_part->x[1] == part->x[1])
+					part->if_topped = 1;
+			}
+		}
+
 	}
 }
 

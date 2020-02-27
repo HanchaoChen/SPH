@@ -26,6 +26,7 @@ public:
 	double rho, P;					//density and pressure
 	double dedv[2]; // dVdT
 	double drho;  // drhodt
+	int if_topped;
 
 	static SPH_main *main_data;		//link to SPH_main class so that it can be used in calc_index
 
@@ -47,30 +48,27 @@ public:
 
 	void set_values(void);
 	void initialise_grid(void);
-
+	
 	void place_points(double *min, double *max);
+	void fill_domain();
 
 	void allocate_to_grid(void);			//allocates all the points to the search grid (assumes that index has been appropriately updated)
 
-	void cal_derivative(SPH_particle *part);      // calculate the derivative
-	//void cal_derivative_second(SPH_particle* part); // calculate the derivative
+	void check_if_topped(SPH_particle* part);
 
+	void cal_derivative(SPH_particle *part);      // calculate the derivative
 
 	void smooth_density(SPH_particle* part, int t_step);      // smooth the denstity every 10 to 20 times
 
 	void neighbour_iterate(SPH_particle *part);
 	
-	void update_parameters_fe(int step, double dt);
-	//void update_parameters_fe_second(int step,double dt);
 	//void update_parameters_pc(double dt, int step);
+	void update_parameters_fe(int step, double dt);
 
 	void get_cfl_time_step(double* part_v, double* other_part_v);
 	void get_tf_ta_time_step(double rho, double *dedv);
 
 	void update_min_time_step();
-	//void pushback(SPH_particle* part,double dt);
-	//void pushback_position(SPH_particle* part);
-	//double rforce(double r);
 
 	int min_t_cfl, min_tf, min_ta; // Used in adaptive timestepping, default to long value
 	int max_dt;

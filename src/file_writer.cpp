@@ -111,6 +111,11 @@ double get_density(SPH_particle p) {
 
 }
 
+double get_if_topped(SPH_particle p) {
+    /* Return pressure for particle p */
+    return p.if_topped;
+}
+
 void filename_padLeft(string& file_num, const size_t size, const char padzero)
 {
     if (size > file_num.size())
@@ -148,6 +153,7 @@ int write_file(int& iter,std::vector<SPH_particle> *particle_list, bool test) {
   fs << scalar_to_string("Pressure", particle_list, get_pressure);
   fs << vector_to_string("Velocity", particle_list, get_velocity);
   fs << scalar_to_string("Density", particle_list, get_density);
+  fs << scalar_to_string("If_topped", particle_list, get_if_topped);
   fs << "</PointData>\n";
   fs << "<Points>\n";
   fs << vector_to_string("Points", particle_list, get_position);
