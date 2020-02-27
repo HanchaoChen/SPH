@@ -2,14 +2,13 @@ import vtk
 import os
 import numpy as np
 
-def test_position():
+def test_position_outboundary():
     reader = vtk.vtkXMLPolyDataReader()
     path = "data/"
-    #path2 = "../data/"
+    #path = "../data/"
     files = os.listdir(path)
     for file in files:
             if not os.path.isdir(file):
-                 #f = open(path + "/" + file) 
                  reader.SetFileName(path + file)
                  reader.Update()
                  pdata = reader.GetOutput()
@@ -22,18 +21,29 @@ def test_position():
                          assert ((x[i] <= 20.4) and (x[i] >= -0.4))
                          assert ((y[i] <= 10.4) and (y[i] >= -0.4))
                          assert (z[i] == 0.0)
-                                
+
+def test_position_overlap():
+    reader = vtk.vtkXMLPolyDataReader()
+    path = "data/"
+    #path = "../data/"
+    files = os.listdir(path)
+    for file in files:
+            if not os.path.isdir(file):
+                 reader.SetFileName(path + file)
+                 reader.Update()
+                 pdata = reader.GetOutput()
+                 points = pdata.GetNumberOfPoints()
+                 for i in range(0, points):
+                        assert (pdata.GetPointData().GetArray('If_topped').GetValue(i) == 0.0)
+
 def test_density():
     reader = vtk.vtkXMLPolyDataReader()
     path = "data/"
-    #path2 = "../data/"
+    #path = "../data/"
     files = os.listdir(path)
-    #files = os.listdir(path2)
     for file in files:
-            if not os.path.isdir(file):
-                 #f = open(path + "/" + file) 
+            if not os.path.isdir(file): 
                  reader.SetFileName(path + file)
-                 #reader.SetFileName(path2 + file)
                  reader.Update()
                  pdata = reader.GetOutput()
                  points = pdata.GetNumberOfPoints()
