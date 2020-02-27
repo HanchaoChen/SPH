@@ -104,20 +104,25 @@ double get_pressure(SPH_particle p) {
 }
 
 double get_density(SPH_particle p) {
-
-    /* Return derivation for particle p */
-
+    /* Return density for particle p */
     return p.rho;
-
 }
 
 double get_if_topped(SPH_particle p) {
-    /* Return pressure for particle p */
+    /* Return bool if_topped for particle p */
     return p.if_topped;
 }
 
 void filename_padLeft(string& file_num, const size_t size, const char padzero)
 {
+    /*
+    Pad zero to the left of the file number so make it a fixed size for all files.
+    For example, after padding, file number 12 becomes 00000012.
+
+    @param[in] file_num The number of the file
+    @param[in] size The size of the file number. Default is 8.
+    @param[in] padzero The character to be padded with. Default is '0'.
+   */
     if (size > file_num.size())
         file_num.insert(0, size - file_num.size(), padzero);
 }
@@ -125,11 +130,11 @@ void filename_padLeft(string& file_num, const size_t size, const char padzero)
 int write_file(int& iter,std::vector<SPH_particle> *particle_list, bool test) {
 
   /*
-    
     Write VTK XMLPolyData (.vtp) file containing data in particle_list.
 
     @param[in] filename Filename to write to
-    @param[in] particle_list Particle list to output 
+    @param[in] particle_list Particle list to output
+    @param[in] test Whether to write a file for a test
 
    */
     string file_num;
