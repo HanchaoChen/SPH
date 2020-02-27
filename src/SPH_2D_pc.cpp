@@ -11,7 +11,7 @@ void SPH_particle::init_particle()
 	P = B * (pow((rho / rho_0), ga) - 1);
 	v[0] = 0;
 	v[1] = 0;
-	
+	if_topped = 0;// assume no topping at the beginning
 }
 
 void SPH_particle::set_particle_deri(void)
@@ -325,6 +325,7 @@ void SPH_main::update_parameters_pc(double dt,int step) // uses predictor-correc
 
 	for (int p = 0; p < this->particle_list.size(); p++)
 	{
+		//check_if_topped(&(this->particle_list[p]));
 		smooth_density(&(this->particle_list[p]), step);
 	}
 

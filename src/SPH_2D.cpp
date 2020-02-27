@@ -13,7 +13,7 @@ void SPH_particle::init_particle()
 	P = B * (pow((rho / rho_0), ga) - 1);
 	v[0] = 0;
 	v[1] = 0;
-	
+	if_topped = 0;
 }
 
 void SPH_particle::set_particle_deri(void)
@@ -327,6 +327,7 @@ void SPH_main::update_parameters_fe(int step,double dt) // uses forward euler ex
 	this->min_ta = 0.1 * h / C0;*/
 	for (int p = 0; p < this->particle_list.size(); p++)
 	{
+		check_if_topped(&(this->particle_list[p]));
 		smooth_density(&(this->particle_list[p]), step);
 	}
 
