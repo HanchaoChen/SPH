@@ -7,6 +7,8 @@ SPH_main* SPH_particle::main_data;
 
 void SPH_particle::init_particle()
 {
+	/*Initialize the parameters of a particle. */
+
 	rho = rho_0;
 	P = B * (pow((rho / rho_0), ga) - 1);
 	v[0] = 0;
@@ -16,6 +18,8 @@ void SPH_particle::init_particle()
 
 void SPH_particle::set_particle_deri(void)
 {
+	/*Initialize the derivative parameters of a particle. */
+
 	dedv[0] = 0;
 	dedv[1] = -g;
 	drho = 0;
@@ -23,11 +27,15 @@ void SPH_particle::set_particle_deri(void)
 
 void SPH_particle::cal_P(void)
 {
+	/*Calculate pressure of the particle */
+
 	P = B * (pow((rho / rho_0), ga) - 1);
 }
 
 void SPH_particle::calc_index(void)
 {
+	/*Calculate the grid index of the particle */
+
 	for (int i = 0; i < 2; i++)
 		list_num[i] = int((x[i] - main_data->min_x[i]) / (2.0 * main_data->h));
 }
@@ -39,6 +47,8 @@ SPH_main::SPH_main()
 
 void SPH_main::set_values(void)
 {
+	/*Set up the domain size and some physical values*/
+
 	min_x[0] = 0.0;
 	min_x[1] = 0.0;
 	 
@@ -56,6 +66,7 @@ void SPH_main::set_values(void)
 
 void SPH_main::initialise_grid(void)
 {
+	/*Add boundaries and divide the domain to several grids*/
 	
 	for (int i = 0; i < 2; i++)
 	{
@@ -73,6 +84,14 @@ void SPH_main::initialise_grid(void)
 
 void SPH_main::place_points(double* min, double* max) //the initial allocation (use it twice)
 {
+	/*
+	Assign the grid index to particles and put particles into particle_list.
+
+	@param[in] min The minimum value of the domain on the x, y axis
+	@param[in] max The maximum value of the domain on the x, y axis
+
+   */
+
 	double x[2] = { min[0], min[1] };
 	SPH_particle particle;
 
@@ -96,6 +115,8 @@ void SPH_main::place_points(double* min, double* max) //the initial allocation (
 
 void SPH_main::fill_domain()
 {
+	/*Place points for the boundaries and the fluid domain. */
+
 	int thick = int(2 * h / dx);
 
 	double min_bottom[2] = { -thick * dx, -thick * dx };
@@ -130,6 +151,8 @@ void SPH_main::fill_domain()
 
 void SPH_main::allocate_to_grid(void)				//needs to be called each time that all the particles have their positions updated
 {
+	/* Update the points in the grids when the particles have their positions updated */
+
 	for (int i = 0; i < max_list[0]; i++)
 		for (int j = 0; j < max_list[1]; j++)
 			search_grid[i][j].clear();
@@ -145,6 +168,8 @@ void SPH_main::allocate_to_grid(void)				//needs to be called each time that all
 // to check if two particles toppled 
 void SPH_main::check_if_topped(SPH_particle* part)
 {
+	/* Check if two particles toppled  */
+
 	SPH_particle* other_part;
 	size_t size = search_grid[part->list_num[0]][part->list_num[1]].size();
 
@@ -166,6 +191,13 @@ void SPH_main::check_if_topped(SPH_particle* part)
 // calcluate the derivative on each particle
 void SPH_main::cal_derivative(SPH_particle* part)
 {
+	/*
+	Calculate the derivatives on each particle
+
+	@param[in] part The particle calculated
+
+   */
+
 	SPH_particle* other_part;
 	double dist;			//distance between particles
 	double dn[2];			//vector from 1st to 2nd particle
@@ -231,6 +263,14 @@ void SPH_main::cal_derivative(SPH_particle* part)
 
 void SPH_main::smooth_density(SPH_particle* part, int t_step)
 {
+	/*
+	Smooth density of particles every fixed time steps
+
+	@param[in] part The particle calculated
+	@param[in] t_step The time step.
+
+   */
+
 	if (t_step > 0 && t_step % 15 == 0) // every 15 time steps execute this  
 	{
 		double sumW = 0;
@@ -280,44 +320,18 @@ void SPH_main::smooth_density(SPH_particle* part, int t_step)
 }
 
 
-// manipulate on single particle
-void SPH_main::neighbour_iterate(SPH_particle* part)					//iterates over all particles within 2h of part - can be made more efficient using a stencil and realising that all interactions are symmetric
+void SPH_main::update_parameters_pc(int step, double dt) // uses predictor-corrector method to update parameters for all particles
 {
-	SPH_particle* other_part;
-	double dist;			//distance between particles
-	double dn[2];			//vector from 1st to 2nd particle
+	/*
+	Calculate the new position and velocity for all the particles
+	using predictor-corrector scheme. 
 
-	for (int i = part->list_num[0] - 1; i <= part->list_num[0] + 1; i++)
-		if (i >= 0 && i < max_list[0])
-			for (int j = part->list_num[1] - 1; j <= part->list_num[1] + 1; j++)
-				if (j >= 0 && j < max_list[1])
-				{
-					for (unsigned int cnt = 0; cnt < search_grid[i][j].size(); cnt++)
-					{
-						other_part = search_grid[i][j][cnt];
+	@param[in] step The time step
+	@param[in] dt The interval of time steps.
 
-						if (part != other_part)					//stops particle interacting with itself
-						{
-							//Calculates the distance between potential neighbours
-							for (int n = 0; n < 2; n++)
-								dn[n] = part->x[n] - other_part->x[n];
+   */
 
-							dist = sqrt(dn[0] * dn[0] + dn[1] * dn[1]);
 
-							if (dist < 2. * h)					//only particle within 2h
-							{
-								//TODO: all the interactions between the particles
-
-								cout << "dn: " << dn[0] << " " << dn[1] << endl;		//Should be removed from the code - simply here for you to see that it is working
-							}
-
-						}
-					}
-				}
-}
-
-void SPH_main::update_parameters_pc(double dt,int step) // uses predictor-corrector method to update parameters for all particles
-{
 	//dt = 0.1 * h / C0;
 	/*this->min_t_cfl = 0.1 * h / C0;
 	this->min_tf = 0.1 * h / C0;
@@ -325,17 +339,34 @@ void SPH_main::update_parameters_pc(double dt,int step) // uses predictor-correc
 
 	for (int p = 0; p < this->particle_list.size(); p++)
 	{
-		//check_if_topped(&(this->particle_list[p]));
+		check_if_topped(&(this->particle_list[p]));
 		smooth_density(&(this->particle_list[p]), step);
 	}
 
-    double x_0[2], v_0[2], rho_first; // stores initial values, overwritten but still used below by predictor-corrector method
-    
+    for (int p = 0; p < this->particle_list.size(); p++)
+	{
+		for (int i = 0; i < 2; i++) // updates position and velocity parameters (in x and y directions) for a single particle, using derivatives computed previously
+		{
+			this->particle_list[p].x_0[i] = this->particle_list[p].x[i];
+			this->particle_list[p].v_0[i] = this->particle_list[p].v[i];
+		}
+		
+		this->particle_list[p].rho_first = this->particle_list[p].rho; // stores initial values, overwritten but still used below by predictor-corrector method
+	}
+
+	for (int p = 0; p < this->particle_list.size(); p++) // for all particles in the domain
+    {
+		cal_derivative(&(this->particle_list[p])); // calculate first time step derivatives from first time step particle list
+	}
+
 	//////////////// FIRST HALF STEP
 	for (int p = 0; p < this->particle_list.size(); p++) // for all particles in the domain
     {
         // update the particles *within* the boundary
-        if (this->particle_list[p].x[0] >= this->min_x[0] + 2 * this->h && particle_list[p].x[0] <= this->max_x[0] - 2 * this->h && particle_list[p].x[1] <= this->max_x[1] - 2 * this->h && particle_list[p].x[1] >= this->min_x[1] + 2 * this->h)
+        if (this->particle_list[p].x[0] > this->min_x[0] + 2 * this->h - dx \
+			&& particle_list[p].x[0] < this->max_x[0] - 2 * this->h + dx \
+			&& particle_list[p].x[1] < this->max_x[1] - 2 * this->h + dx \
+			&& particle_list[p].x[1] > this->min_x[1] + 2 * this->h - dx)
         {
 
 			//update this->min_tf
@@ -347,8 +378,6 @@ void SPH_main::update_parameters_pc(double dt,int step) // uses predictor-correc
 			if (h / (C0 * sqrt(pow(this->particle_list[p].rho / rho_0, ga - 1))) < this->min_ta) {
 				this->min_ta = C0 * sqrt(pow(this->particle_list[p].rho / rho_0, ga - 1));
 			}
-
-            cal_derivative(&(this->particle_list[p])); // calculate first time step derivatives from first time step particle list
             
 			for (int i = 0; i < 2; i++) // updates position and velocity parameters (in x and y directions) for a single particle, using derivatives computed previously
             {
@@ -367,17 +396,16 @@ void SPH_main::update_parameters_pc(double dt,int step) // uses predictor-correc
 				// else // if particle is within boundaries
 				// {
 
-				x_0[i] = this->particle_list[p].x[i];  // store old positions, to be used below
+				this->particle_list[p].x_0[i] = this->particle_list[p].x[i];  // store old positions, to be used below
                 this->particle_list[p].x[i] += 0.5 * dt * this->particle_list[p].v[i]; // update positions
 
-				v_0[i] = this->particle_list[p].v[i]; // store old velocities, to be used below
+				this->particle_list[p].v_0[i] = this->particle_list[p].v[i]; // store old velocities, to be used below
                 this->particle_list[p].v[i] += 0.5 * dt * this->particle_list[p].dedv[i]; // update velocities
 
 				// }
             }  
         }
 
-		rho_first = this->particle_list[p].rho;  // stores old density, to be used below
 		this->particle_list[p].rho += 0.5 * dt * this->particle_list[p].drho; // updates densities
 		this->particle_list[p].P = B * (pow(particle_list[p].rho / rho_0, ga) - 1); // updates pressures
     }
@@ -385,11 +413,19 @@ void SPH_main::update_parameters_pc(double dt,int step) // uses predictor-correc
 	//////////////// INTERMEDIATE UPDATING OF NEIGHBOR SEARCH GRID
 	this->allocate_to_grid(); // for next half step, need to use the *new* nearest neighbors to all particles, so reallocate here
 
+	for (int p = 0; p < this->particle_list.size(); p++) // for all particles in the domain
+    {
+		cal_derivative(&(this->particle_list[p])); // recalculate particle derivatives using half step particle properties
+	}
+
 	//////////////// SECOND HALF STEP
     for (int p = 0; p < this->particle_list.size(); p++) // for all particles in the domain
     {
         // update the particles within the boundary
-        if (this->particle_list[p].x[0] >= this->min_x[0] + 2 * this->h && particle_list[p].x[0] <= this->max_x[0] - 2 * this->h && particle_list[p].x[1] <= this->max_x[1] - 2 * this->h && particle_list[p].x[1] >= this->min_x[1] + 2 * this->h)
+		if (this->particle_list[p].x[0] > this->min_x[0] + 2 * this->h - dx \
+			&& particle_list[p].x[0] < this->max_x[0] - 2 * this->h + dx \
+			&& particle_list[p].x[1] < this->max_x[1] - 2 * this->h + dx \
+			&& particle_list[p].x[1] > this->min_x[1] + 2 * this->h - dx)
         {
 			//update this->min_tf
 			if (sqrt(h / sqrt(pow(this->particle_list[p].dedv[1], 2) + pow(this->particle_list[p].dedv[0], 2))) < this->min_tf) {
@@ -400,38 +436,35 @@ void SPH_main::update_parameters_pc(double dt,int step) // uses predictor-correc
 				this->min_ta = C0 * sqrt(pow(this->particle_list[p].rho / rho_0, ga - 1));
 			}
 			
-            cal_derivative(&(this->particle_list[p])); // recalculate particle derivatives using half step particle properties
-
             for (int i = 0; i < 2; i++) // second half step
             {
-                this->particle_list[p].x[i] = x_0[i] + 0.5 * dt * this->particle_list[p].v[i];
-                this->particle_list[p].v[i] = v_0[i] + 0.5 * dt * this->particle_list[p].dedv[i];
+                this->particle_list[p].x[i] = this->particle_list[p].x_0[i] + 0.5 * dt * this->particle_list[p].v[i];
+                this->particle_list[p].v[i] = this->particle_list[p].v_0[i] + 0.5 * dt * this->particle_list[p].dedv[i];
             }
-            this->particle_list[p].rho = rho_0 + 0.5 * dt * this->particle_list[p].drho; // update densities for second half step
-            
+            this->particle_list[p].rho = this->particle_list[p].rho_first + 0.5 * dt * this->particle_list[p].drho; // update densities for second half step
+            this->particle_list[p].P = B * (pow(particle_list[p].rho / rho_0, ga) - 1); // update pressures for final result, using final density
+
 			for (int i = 0; i < 2; i++) // final update: uses both half-steps computed above
             {
 				// equivalent to pushback if particle is outside boundaries
-				if (this->particle_list[p].x[i] + dt * this->particle_list[p].v[i] < min_x[i] + 2.0 * h)
+				if (this->particle_list[p].x[i] + dt * this->particle_list[p].v[i] < min_x[i] + 2.0 * h - dx)
 				{
 					this->particle_list[p].v[i] = abs(this->particle_list[p].v[i] + this->particle_list[p].dedv[i] * dt);
 				}
-				else if (this->particle_list[p].x[i] + dt * this->particle_list[p].v[i] > max_x[i] - 2.0 * h)
+				else if (this->particle_list[p].x[i] + dt * this->particle_list[p].v[i] > max_x[i] - 2.0 * h + dx)
 				{
 					this->particle_list[p].v[i] = -abs(this->particle_list[p].v[i] + this->particle_list[p].dedv[i] * dt);
 				}
 
 				else // if particle is within boundaries
 				{
-					this->particle_list[p].x[i] = 2 * this->particle_list[p].x[i] - x_0[i];
-                	this->particle_list[p].v[i] = 2 * this->particle_list[p].v[i] - v_0[i];
+					this->particle_list[p].x[i] = 2 * this->particle_list[p].x[i] - this->particle_list[p].x_0[i];
+                	this->particle_list[p].v[i] = 2 * this->particle_list[p].v[i] - this->particle_list[p].v_0[i];
 				}
             }
+			this->particle_list[p].rho = 2 * this->particle_list[p].rho - this->particle_list[p].rho_first;  // update densities for final result, using both first and second time steps
+			this->particle_list[p].P = B * (pow(particle_list[p].rho / rho_0, ga) - 1); // update pressures for final result, using final density
         }
-
-		//////////////// FINAL UPDATING
-		this->particle_list[p].rho = 2 * this->particle_list[p].rho - rho_first;  // update densities for final result, using both first and second time steps
-		this->particle_list[p].P = B * (pow(particle_list[p].rho / rho_0, ga) - 1); // update pressures for final result, using final density
     }
 
 	/*cout << "this->min_t_cfl"<<this->min_t_cfl << "\t";
