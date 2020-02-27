@@ -23,6 +23,8 @@ class SPH_particle
 public:
 
 	double x[2], v[2];				//position and velocity
+	double x_0[2], v_0[2];
+	double rho_first;
 	double rho, P;					//density and pressure
 	double dedv[2]; // dVdT
 	double drho;  // drhodt
@@ -52,17 +54,16 @@ public:
 	void place_points(double *min, double *max);
 	void fill_domain();
 
-	void allocate_to_grid(void);			//allocates all the points to the search grid (assumes that index has been appropriately updated)
+	void allocate_to_grid(void);  //allocates all the points to the search grid 
+	                              //(assumes that index has been appropriately updated)
 
 	void check_if_topped(SPH_particle* part);
 
-	void cal_derivative(SPH_particle *part);      // calculate the derivative
+	void cal_derivative(SPH_particle *part);  // calculate the derivative
 
-	void smooth_density(SPH_particle* part, int t_step);      // smooth the denstity every 10 to 20 times
-
-	void neighbour_iterate(SPH_particle *part);
+	void smooth_density(SPH_particle* part, int t_step);   // smooth the density every 10 to 20 times
 	
-	//void update_parameters_pc(double dt, int step);
+	// void update_parameters_pc(int step, double dt);
 	void update_parameters_fe(int step, double dt);
 
 	void get_cfl_time_step(double* part_v, double* other_part_v);
@@ -70,7 +71,7 @@ public:
 
 	void update_min_time_step();
 
-	int min_t_cfl, min_tf, min_ta; // Used in adaptive timestepping, default to long value
+	int min_t_cfl, min_tf, min_ta; // Used in adaptive time stepping, default to long value
 	int max_dt;
 	int vij; //used to temporarily store the difference in velocity between particle i and j
 
