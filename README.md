@@ -12,7 +12,7 @@ surfaces. This tool implements the SPH method in C++ to solve wave generation in
 
 To install the project, simply run this in your favorite terminal:
 
-``` pip install git+https://github.com/acse-2019/acse-4-armageddon-vesta.git```
+``` ```
 
 ### User instructions
 
