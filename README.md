@@ -22,6 +22,7 @@ For Visual Studio, please create a project under the home directory and only inc
 
 For linux environment, simply run this on the command line:
 
+``` ```
 
 ### User instructions
 
@@ -40,15 +41,15 @@ After compling the code, user can run the executable file on the command line by
 
 After running the the executable file, a simulation time output interval will be asked to enter. This interval will allow output files to be generated after a certain number of timesteps. So user will not get a huge number of files.
 
-The output files are in the folder named **data** in the home directory by default. User can change the path in the write_file function of file_writer.cpp file.
+The output files are in the folder named **data** in the home directory by default. User can change this path in the *write_file* function of **file_writer.cpp** file.
 
 #### For generating data of .vtp format:
 
-The default file for generating data are file_writer.cpp and file_writer.h, whose output format of data is .vtp. And we provide a handful Jupyter notebook in the home directory to handle this data. By using this notebook user can get the data array of parameters like pressure, velocity etc, and the animation of the whole simulation process.
+The default file for generating data are **file_writer.cpp** and **file_writer.h**, whose output format of data is .vtp. And we provide a handful Jupyter notebook in the home directory to handle this data. By using this notebook user can get the data array of parameters like pressure, velocity etc, and the animation of the whole simulation process.
 
 #### For generating data of .txt format:
 
-We also provide the data_output.cpp and data_output.h file for generating the data of .txt format into the post_process folder(in the home directory), so user who is familiar with pandas can manipulate the data more easily. The Jupyter notebook named txt_output.ipynb in the home directory is an example of using .txt files to get the dataframe of all parameters.
+We also provide the **data_output.cpp** and **data_output.h** file for generating the data of .txt format into the **post_process** folder(in the home directory), so user who is familiar with pandas can manipulate the data more easily. The Jupyter notebook named *txt_output.ipynb in the home directory is an example of using .txt files to get the dataframe of all parameters.
 
 ### Documentation
 
