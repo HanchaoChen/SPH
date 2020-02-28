@@ -18,13 +18,13 @@ To get the files of this project, simply run this in your favorite terminal:
 #### Compilation
 First, choose the files you want to implement. Usually user need to include .cpp and .h of certain method and SPH_Snippet,cpp file to run the project.
 
-Choose **SPH_2D.cpp**and**SPH_2D.h** for forward Euler.
+Choose **SPH_2D.cpp** and **SPH_2D.h** for forward Euler.
 
-Choose **SPH_2D_pc.cpp**and**SPH_2D.h** for predictor_corrector.
+Choose **SPH_2D_pc.cpp** and **SPH_2D.h** for predictor_corrector.
 
-Choose **SPH_2D_dynamic.cpp**and**SPH_2D_old_dynamic.h** for forward Euler with dynamic time stepping.
+Choose **SPH_2D_dynamic.cpp** and **SPH_2D_old_dynamic.h** for forward Euler with dynamic time stepping.
 
-Choose **SPH_2D_pc_dynamic.cpp**and**SPH_2D_old_dynamic.h** for predictor_corrector with dynamic time stepping.
+Choose **SPH_2D_pc_dynamic.cpp** and **SPH_2D_old_dynamic.h** for predictor_corrector with dynamic time stepping.
 
 Notice that to implement another method you need to uncomment the corresponding functions in the header file and file_writter.cpp file.
 
