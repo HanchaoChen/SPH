@@ -16,13 +16,15 @@ To get the files of this project, simply run this in your favorite terminal:
 ```git clone https://github.com/acse-2019/acse-4-sph-awe.git ```
 
 #### Compilation
-First, choose the files you want to implement. 
+First, choose the files you want to implement. Usually user need to include 
 
 For Visual Studio, please create a project under the home directory and only includes the files you need into the Header Files and Source Files folder. Then use the built-in compiler to compile these files.
 
 For linux environment, simply run this on the command line:
 
-``` ```
+```g++ fileYouNeedToUse.cpp fileYouNeedToUse.h -o SPH ```
+
+It will generate an executable file in the root.
 
 ### User instructions
 
@@ -37,7 +39,7 @@ After compling the code, user can run the executable file on the command line by
 
 #### For Mac os and linuxs environment:
 
-
+``` ./SPH ```
 
 After running the the executable file, a simulation time output interval will be asked to enter. This interval will allow output files to be generated after a certain number of timesteps. So user will not get a huge number of files.
 
