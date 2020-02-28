@@ -49,7 +49,7 @@ The default file for generating data are **file_writer.cpp** and **file_writer.h
 
 #### For generating data of .txt format:
 
-We also provide the **data_output.cpp** and **data_output.h** file for generating the data of .txt format into the **post_process** folder(in the home directory), so user who is familiar with pandas can manipulate the data more easily. The Jupyter notebook named *txt_output.ipynb in the home directory is an example of using .txt files to get the dataframe of all parameters.
+We also provide the **data_output.cpp** and **data_output.h** file for generating the data of .txt format into the **post_process** folder(in the home directory), so user who is familiar with pandas can manipulate the data more easily. The Jupyter notebook named **txt_output.ipynb** in the home directory is an example of using .txt files to get the dataframe of all parameters.
 
 ### Documentation
 
