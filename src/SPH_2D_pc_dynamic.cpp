@@ -449,6 +449,14 @@ void SPH_main::update_parameters_pc(int step, double dt) // uses predictor-corre
 
 void SPH_main::get_cfl_time_step(double* part_v, double* other_part_v, int t)
 {
+    /*
+    Used for dynamic time-stepping. Finds the minimum CFL dt. 
+    To be called every time any particle interacts with any other particle.
+
+    @param[in] part_v Particle i (current)
+    @param[in] other_part_v Particle j (interacting with i)
+
+   */
     // this->min_t_cfl = 0.1*h/C0; //Initial time step
     if (t != 0)
     {
@@ -462,6 +470,15 @@ void SPH_main::get_cfl_time_step(double* part_v, double* other_part_v, int t)
 
 void SPH_main::get_tf_ta_time_step(double rho, double* dedv, int t)
 {
+    /*
+    Used for dynamic time-stepping. Finds the minimum TF and TA dt. 
+    To be called every particle finishes a set of iterations with its neighbour particles. 
+
+    @param[in] rho Particle i's rho 
+    @param[in] dedv Particle  i's acceleration
+    @param[in] t Time 
+
+   */
 
     if (t != 0)
     {
@@ -477,6 +494,14 @@ void SPH_main::get_tf_ta_time_step(double rho, double* dedv, int t)
 
 void SPH_main::update_min_time_step(int t)
 {
+     /*
+    Used for dynamic time-stepping. Finds the minimum of CFL, TF and TA time steps. 
+    To be called every time a whole set of iterations is completed.
+
+    @param[in] t Time 
+
+   */
+    
     if (t != 0)
     {
         this->max_dt = min(this->min_t_cfl, this->min_tf);
