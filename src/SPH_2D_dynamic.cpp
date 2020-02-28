@@ -27,11 +27,11 @@ void SPH_particle::set_particle_deri(void)
     drho = 0;
 }
 
-void SPH_particle::cal_P(void)
+void SPH_particle::init_particle_topped(void)
 {
-    /*Calculate pressure of the particle */
+    /*Initialize the if_topped value of a particle. */
 
-    P = B * (pow((rho / rho_0), ga) - 1);
+    if_topped = 0;
 }
 
 void SPH_particle::calc_index(void)
@@ -173,7 +173,7 @@ void SPH_main::allocate_to_grid(void)
 
 void SPH_main::check_if_topped(SPH_particle* part)
 {
-    /* Check if two particles toppled  */
+    /* Check if two particles topped  */
 
     SPH_particle* other_part;
     size_t size = search_grid[part->list_num[0]][part->list_num[1]].size();
@@ -277,7 +277,7 @@ void SPH_main::smooth_density(SPH_particle* part, int t_step)
         double dist;            //distance between particles
         double dn[2];            //vector from 1st to 2nd particle
         double W;               // weight
-        double fac = 10. / (7. * Pi * h * h);
+        double fac = 10. / (7. *M_PI * h * h);
 
         for (int i = part->list_num[0] - 1; i <= part->list_num[0] + 1; i++)
             if (i >= 0 && i < max_list[0]) // Ensure it is in the domain on x axis
@@ -325,13 +325,13 @@ void SPH_main::update_parameters_fe(int step,double dt) // uses forward euler ex
     using forward Euler method.
 
     @param[in] step The time step
-    @param[in] dt The interval of time steps.
+    @param[double] dt The interval of time steps.
 
    */
 
     for (int p = 0; p < this->particle_list.size(); p++)// for all particles in the domain
     {
-        check_if_topped(&(this->particle_list[p]));
+        this->particle_list[p].init_particle_topped();
         smooth_density(&(this->particle_list[p]), step);
     }
 
@@ -379,7 +379,8 @@ void SPH_main::update_parameters_fe(int step,double dt) // uses forward euler ex
         double new_rho = this->particle_list[p].rho + dt * this->particle_list[p].drho; // updates density
         this->particle_list[p].rho = new_rho;
         this->particle_list[p].P = B * (pow(particle_list[p].rho / rho_0, ga) - 1);
-
+        //use check_if_topped
+        check_if_topped(&(this->particle_list[p]));
     }
 
 }
@@ -388,12 +389,11 @@ void SPH_main::update_parameters_fe(int step,double dt) // uses forward euler ex
 void SPH_main::get_cfl_time_step(double* part_v, double* other_part_v, int t)
 {
     /*
-    Calculate the new position and velocity for all the particles
-    using forward Euler method.
+    Calculate the cfl_time for the purpose of adapative time stepping.
 
     @param[in] part_v The velocity of this particle
     @param[in] other_part_v The velocity of another particle
-    @param[in] t 
+    @param[in] t Time step
 
    */
 
@@ -409,12 +409,12 @@ void SPH_main::get_cfl_time_step(double* part_v, double* other_part_v, int t)
 void SPH_main::get_tf_ta_time_step(double rho, double* dedv, int t)
 {
     /*
-    Calculate the new position and velocity for all the particles
-    using forward Euler method.
+       Calculate the tf_time and ta_time for the purpose of adapative time stepping.
+
 
     @param[in] rho The density of this particle
     @param[in] dedv The velocity of another particle
-    @param[in] t 
+    @param[in] t Time step
 
    */
     if (t != 0)
@@ -431,12 +431,11 @@ void SPH_main::get_tf_ta_time_step(double rho, double* dedv, int t)
 void SPH_main::update_min_time_step(int t)
 {
     /*
-   Calculate the new position and velocity for all the particles
-   using forward Euler method.
+   Find the minimum between tf_time, ta_time, and cfl_time for the purpose of adapative time stepping.
 
    @param[in] rho The density of this particle
    @param[in] dedv The velocity of another particle
-   @param[in] t
+   @param[in] t Time step
 
     */
     if (t != 0)
